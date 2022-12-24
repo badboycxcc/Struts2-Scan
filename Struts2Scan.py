@@ -9,6 +9,7 @@ import hashlib
 import string
 import click
 import requests
+requests.packages.urllib3.disable_warnings
 import urllib.request
 import urllib.parse
 import urllib.error
@@ -50,7 +51,7 @@ process = 10
 def get(url, headers=None, encoding='UTF-8'):
     """GET请求发送包装"""
     try:
-        html = requests.get(url, headers=headers, proxies=proxies, timeout=_tiemout)
+        html = requests.get(url, headers=headers, proxies=proxies, timeout=_tiemout, verify = False)
         html = html.content.decode(encoding)
         return html.replace('\x00', '').strip()
     except ChunkedEncodingError as e:
@@ -67,7 +68,7 @@ def get(url, headers=None, encoding='UTF-8'):
 def get_302(url, headers=None, encoding='UTF-8'):
     """GET请求发送包装"""
     try:
-        html = requests.get(url, headers=headers, proxies=proxies, timeout=_tiemout, allow_redirects=False)
+        html = requests.get(url, headers=headers, proxies=proxies, timeout=_tiemout, allow_redirects=False, verify = False)
         status_code = html.status_code
         if status_code == 302:
             html = html.headers.get("Location", "")
@@ -88,7 +89,7 @@ def get_302(url, headers=None, encoding='UTF-8'):
 def get_stream(url, headers=None, encoding='UTF-8'):
     """分块接受数据"""
     try:
-        lines = requests.get(url, headers=headers, timeout=_tiemout, stream=True, proxies=proxies)
+        lines = requests.get(url, headers=headers, timeout=_tiemout, stream=True, proxies=proxies, verify = False)
         html = list()
         for line in lines.iter_lines():
             if b'\x00' in line:
@@ -109,7 +110,7 @@ def get_stream(url, headers=None, encoding='UTF-8'):
 def post(url, data=None, headers=None, encoding='UTF-8', files=None):
     """POST请求发送包装"""
     try:
-        html = requests.post(url, data=data, headers=headers, proxies=proxies, timeout=_tiemout, files=files)
+        html = requests.post(url, data=data, headers=headers, proxies=proxies, timeout=_tiemout, files=files, verify = False)
         html = html.content.decode(encoding)
         return html.replace('\x00', '').strip()
     except ChunkedEncodingError as e:
@@ -127,7 +128,7 @@ def post_stream(url, data=None, headers=None, encoding='UTF-8', files=None):
     """分块接受数据"""
     try:
         lines = requests.post(url, data=data, headers=headers, timeout=_tiemout, stream=True, proxies=proxies,
-                              files=None)
+                              files=None, verify = False)
         html = list()
         for line in lines.iter_lines():
             line = line.decode(encoding)
